@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ricerca Percezione Colore</title>
+    <title>Color Perception Study</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             overflow: hidden;
             transition: background-color 0.3s ease;
         }
@@ -34,8 +34,8 @@
             width: 100%;
         }
 
-        h1 { font-size: 22px; color: #333; margin-bottom: 20px; }
-        p { color: #555; line-height: 1.6; }
+        h1 { font-size: 24px; color: #333; margin-bottom: 20px; }
+        p { color: #555; line-height: 1.6; margin-bottom: 15px; }
 
         .btn-container {
             display: flex;
@@ -57,15 +57,15 @@
         button:active { transform: scale(0.95); }
 
         .btn-primary { background-color: #333; color: white; }
-        .btn-secondary { background-color: #e0e0e0; color: #333; }
-
-        /* Stile specifico per Si/No */
-        #btn-yes { background-color: #e0e0e0; color: #333; } /* Si è grigio */
-        #btn-no { background-color: #333; color: white; } /* No (è colore) */
-
-        ul { text-align: left; margin-bottom: 30px; }
         
-        /* Spinner caricamento */
+        /* Specific styles for Yes/No */
+        #btn-yes { background-color: #e0e0e0; color: #333; } /* Yes, it's grey */
+        #btn-no { background-color: #333; color: white; } /* No, I see color */
+
+        ul { text-align: left; margin-bottom: 20px; padding-left: 20px; }
+        li { margin-bottom: 5px; color: #444; }
+        
+        /* Loading Spinner */
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 2s linear infinite; margin: 10px auto; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -75,167 +75,177 @@
     <div id="container">
         
         <div class="box" id="welcome">
-            <h1>Benvenuto/a</h1>
-            <p>Stai per partecipare a un breve test sulla percezione del colore.</p>
-            <div style="background-color: #fff3cd; padding: 15px; border-radius: 10px; border: 1px solid #ffeeba; margin: 20px 0;">
-                <strong>⚠️ Prima di iniziare:</strong>
-                <ul style="margin-bottom:0; margin-top:10px;">
-                    <li>Imposta la luminosità dello schermo al <strong>massimo</strong>.</li>
-                    <li>Disattiva modalità "notte", "protezione occhi" o "filtri luce blu".</li>
-                    <li>Pulisci lo schermo se necessario.</li>
+            <h1>Color Perception Study</h1>
+            <p>Thank you for participating in this research. The goal is to understand how we perceive color saturation boundaries.</p>
+            
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 10px; border: 1px solid #ffeeba; margin: 20px 0; font-size: 0.95em;">
+                <strong>⚠️ Before we begin:</strong>
+                <ul style="margin-top:10px;">
+                    <li>Set your screen brightness to <strong>MAXIMUM</strong>.</li>
+                    <li>Disable "Night Shift", "Blue Light Filters", or "Eye Comfort Shield".</li>
+                    <li>Ensure your screen is clean.</li>
                 </ul>
             </div>
-            <p>Il test dura circa 1 minuto. I dati sono anonimi.</p>
-            <button class="btn-primary" onclick="iniziaTest()" style="width:100%">Ho capito, Inizia</button>
+            
+            <p style="font-size: 0.9em; font-style: italic; color: #666;">
+                Please answer as seriously and accurately as possible. The test adapts to your answers and takes about 60 seconds.
+            </p>
+
+            <button class="btn-primary" onclick="startTest()" style="width:100%">I understand, Start</button>
         </div>
 
         <div class="box" id="interface" style="display:none;">
-            <h1>Chiameresti questo colore "GRIGIO"?</h1>
+            <h1>Would you call this color "GREY"?</h1>
             
             <div class="btn-container">
-                <button id="btn-yes" onclick="rispostaUtente(true)">SÌ</button>
-                <button id="btn-no" onclick="rispostaUtente(false)">NO</button>
+                <button id="btn-yes" onclick="userResponse(true)">YES</button>
+                <button id="btn-no" onclick="userResponse(false)">NO</button>
             </div>
-            <p id="progress" style="margin-top:20px; color:#888; font-size: 12px;">Caricamento...</p>
+            <p id="progress" style="margin-top:20px; color:#888; font-size: 12px;">Loading...</p>
         </div>
 
         <div class="box" id="results" style="display:none;">
-            <h2>Grazie!</h2>
-            <p id="msg-salvataggio">Salvataggio dati in corso...</p>
+            <h2>Thank You!</h2>
+            <p>Your contribution is very valuable.</p>
+            
+            <p id="msg-saving">Saving data...</p>
             <div class="loader" id="loader"></div>
-            <p id="msg-finale" style="display:none; color: green; font-weight: bold;">Dati salvati con successo!</p>
-            <button onclick="location.reload()" style="margin-top: 20px; background-color: #666; color: white;">Rifai il test</button>
+            
+            <p id="msg-final" style="display:none; color: green; font-weight: bold;">Data saved successfully!</p>
+            <p id="msg-error" style="display:none; color: red;">Error saving data.</p>
+            
+            <button onclick="location.reload()" style="margin-top: 20px; background-color: #666; color: white;">Restart Test</button>
         </div>
     </div>
 
     <script>
-        // *** IMPORTANTE: INCOLLERAI QUI L'URL DEL TUO SCRIPT TRA POCO ***
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzrtT_KuQLzGBACPSmoPrVqDDekYtoEr6bWsnrRu6pOfP_bFFf6ukX1NAfqphaucm3Ag/exec"; 
-        // Lascialo vuoto per ora, lo riempiremo alla fine.
 
-        const tuttiIColori = [];
-        // Generiamo 24 tinte
+        const allColors = [];
+        // Generate 24 hues
         for (let i = 0; i < 24; i++) {
-            tuttiIColori.push({ hue: i * 15, id: i });
+            allColors.push({ hue: i * 15, id: i });
         }
 
-        let coloriTest = [];
-        let indiceColoreCorrente = 0;
+        let testColors = [];
+        let currentIndex = 0;
         let rangeMin = 0;
         let rangeMax = 100;
-        let saturazioneAttuale = 100;
-        let risultati = [];
-        let sessionID = Date.now().toString(36) + Math.random().toString(36).substr(2); // ID anonimo per raggruppare le risposte
+        let currentSat = 100;
+        let results = [];
+        // Anonymous session ID
+        let sessionID = Date.now().toString(36) + Math.random().toString(36).substr(2); 
 
-        function prendiColoriStratificati() {
-            // Dividiamo i 24 colori in 6 settori da 4 colori ciascuno
-            // Settore 0: 0-3 (Rossi/Aranci), Settore 1: 4-7 (Gialli/Verdi), etc.
-            let selezione = [];
-            let settori = 6;
-            let coloriPerSettore = 4;
+        // Stratified Random Sampling
+        function getStratifiedColors() {
+            // Divide 24 colors into 6 sectors of 4 colors each
+            let selection = [];
+            let sectors = 6;
+            let colorsPerSector = 4;
             
-            for (let s = 0; s < settori; s++) {
-                let offset = s * coloriPerSettore;
-                // Prende un numero random da 0 a 3 e lo somma all'offset
-                let randomIndex = Math.floor(Math.random() * coloriPerSettore);
-                selezione.push(tuttiIColori[offset + randomIndex]);
+            for (let s = 0; s < sectors; s++) {
+                let offset = s * colorsPerSector;
+                let randomIndex = Math.floor(Math.random() * colorsPerSector);
+                selection.push(allColors[offset + randomIndex]);
             }
-            // Mischiamo l'ordine dei settori affinché non siano sempre in sequenza arcobaleno
-            return selezione.sort(() => 0.5 - Math.random());
+            // Shuffle sector order
+            return selection.sort(() => 0.5 - Math.random());
         }
 
-        function iniziaTest() {
+        function startTest() {
             document.getElementById('welcome').style.display = 'none';
             document.getElementById('interface').style.display = 'block';
-            coloriTest = prendiColoriStratificati();
-            indiceColoreCorrente = 0;
-            setupNuovoColore();
+            testColors = getStratifiedColors();
+            currentIndex = 0;
+            setupNewColor();
         }
 
-        function setupNuovoColore() {
-            if (indiceColoreCorrente >= coloriTest.length) {
-                inviaDati();
+        function setupNewColor() {
+            if (currentIndex >= testColors.length) {
+                sendData();
                 return;
             }
+            // Reset binary search range
             rangeMin = 0;
             rangeMax = 100;
-            saturazioneAttuale = 100; 
-            aggiornaSchermo();
+            currentSat = 100; 
+            updateScreen();
         }
 
-        function aggiornaSchermo() {
-            let hue = coloriTest[indiceColoreCorrente].hue;
-            document.body.style.backgroundColor = `hsl(${hue}, ${saturazioneAttuale}%, 50%)`;
-            document.getElementById('progress').innerText = `Campione ${indiceColoreCorrente + 1} di ${coloriTest.length}`;
+        function updateScreen() {
+            let hue = testColors[currentIndex].hue;
+            document.body.style.backgroundColor = `hsl(${hue}, ${currentSat}%, 50%)`;
+            document.getElementById('progress').innerText = `Sample ${currentIndex + 1} of ${testColors.length}`;
         }
 
-        function rispostaUtente(isGrey) {
-            // isGrey = TRUE -> L'utente ha premuto "Sì" (vede grigio) -> Dobbiamo aumentare saturazione
-            // isGrey = FALSE -> L'utente ha premuto "No" (vede colore) -> Dobbiamo diminuire saturazione
+        function userResponse(isGrey) {
+            // Logic:
+            // isGrey = TRUE -> User sees Grey. Saturation is too low. Threshold is HIGHER.
+            // isGrey = FALSE -> User sees Color. We are above threshold.
 
             if (isGrey) {
-                // Vede grigio: il colore è troppo desaturato.
-                // La soglia del colore è PIÙ ALTA di quella attuale.
-                rangeMin = saturazioneAttuale;
+                rangeMin = currentSat;
             } else {
-                // Vede colore: siamo sopra la soglia.
-                rangeMax = saturazioneAttuale;
+                rangeMax = currentSat;
             }
 
+            // Convergence check (5% tolerance)
             if ((rangeMax - rangeMin) <= 5) {
-                let sogliaFinale = Math.round((rangeMax + rangeMin) / 2);
-                risultati.push({
-                    tinta_gradi: coloriTest[indiceColoreCorrente].hue,
-                    soglia_perc: sogliaFinale
+                let finalThreshold = Math.round((rangeMax + rangeMin) / 2);
+                results.push({
+                    hue_deg: testColors[currentIndex].hue,
+                    threshold_pct: finalThreshold
                 });
-                indiceColoreCorrente++;
-                setupNuovoColore();
+                currentIndex++;
+                setupNewColor();
             } else {
+                // Random Step Binary Search
                 let range = rangeMax - rangeMin;
                 let randomStep = Math.floor(Math.random() * range);
-                saturazioneAttuale = rangeMin + randomStep;
+                currentSat = rangeMin + randomStep;
                 
-                if (saturazioneAttuale === rangeMin) saturazioneAttuale++;
-                if (saturazioneAttuale === rangeMax) saturazioneAttuale--;
+                // Ensure we move at least 1% from bounds
+                if (currentSat === rangeMin) currentSat++;
+                if (currentSat === rangeMax) currentSat--;
                 
-                aggiornaSchermo();
+                updateScreen();
             }
         }
 
-        function inviaDati() {
+        function sendData() {
             document.body.style.backgroundColor = "#f0f0f0";
             document.getElementById('interface').style.display = 'none';
             document.getElementById('results').style.display = 'block';
             document.getElementById('loader').style.display = 'block';
 
             if (!GOOGLE_SCRIPT_URL) {
-                document.getElementById('msg-salvataggio').innerText = "Modalità test (Nessun database collegato).";
+                document.getElementById('msg-saving').innerText = "Test Mode (No Database linked).";
                 document.getElementById('loader').style.display = 'none';
-                console.log(risultati);
+                console.log(results);
                 return;
             }
 
-            // Prepariamo i dati
             const payload = {
-                sessione: sessionID,
-                data: new Date().toISOString(),
-                risultati: risultati
+                session: sessionID,
+                timestamp: new Date().toISOString(),
+                data: results
             };
 
-            // Invio a Google Sheets
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Importante per Google Apps Script
+                mode: 'no-cors',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(payload)
             }).then(response => {
                 document.getElementById('loader').style.display = 'none';
-                document.getElementById('msg-salvataggio').style.display = 'none';
-                document.getElementById('msg-finale').style.display = 'block';
+                document.getElementById('msg-saving').style.display = 'none';
+                document.getElementById('msg-final').style.display = 'block';
             }).catch(error => {
-                document.getElementById('msg-salvataggio').innerText = "Errore nel salvataggio.";
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('msg-saving').style.display = 'none';
+                document.getElementById('msg-error').style.display = 'block';
             });
         }
     </script>
