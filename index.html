@@ -107,10 +107,18 @@
         <div class="box" id="welcome">
             <h1>Color Perception Study</h1>
             
+            <div style="background-color: #ffdddd; color: #d8000c; border: 1px solid #d8000c; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; font-size: 0.9em;">
+                <strong>⚠️ PHOTOSENSITIVITY WARNING:</strong>
+                <p style="color: #d8000c; margin: 5px 0 0 0;">
+                    This test involves <strong>flashing screens and rapid color changes</strong> (strobe effect).<br>
+                    Please <strong>DO NOT PROCEED</strong> if you have photosensitive epilepsy, are prone to migraines, or are sensitive to flashing lights.
+                </p>
+            </div>
+
             <p>The goal of this survey is to determine at what saturation index a color becomes grey.</p>
             
             <div style="background-color: #fff3cd; padding: 15px; border-radius: 10px; border: 1px solid #ffeeba; margin: 20px 0; font-size: 0.95em; color: #333;">
-                <strong>⚠️ Requirements:</strong>
+                <strong>📋 Requirements:</strong>
                 <ul style="margin-top:10px;">
                     <li>Screen Brightness: <strong>100%</strong></li>
                     <li>Disable "Night Mode" / Blue Light Filters.</li>
@@ -122,8 +130,9 @@
                 (Data is saved automatically every 10 answers).
             </p>
 
-            <button class="btn-primary" onclick="startTest()">Start Experiment</button>
+            <button class="btn-primary" onclick="startTest()">I Understand & Start Experiment</button>
         </div>
+        
 
         <div class="box" id="interface" style="display:none;">
             <h2 style="margin-bottom: 40px;">Is this Grey?</h2>
@@ -239,3 +248,4 @@
     </script>
 </body>
 </html>
+
