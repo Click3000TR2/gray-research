@@ -48,7 +48,7 @@
 
         button {
             flex: 1;
-            padding: 25px; /* Pulsanti più grandi */
+            padding: 25px;
             font-size: 24px;
             border: none;
             border-radius: 12px;
@@ -75,7 +75,6 @@
 
         ul { text-align: left; margin-bottom: 20px; padding-left: 20px; }
         
-        /* Piccola notifica di salvataggio */
         #save-status {
             position: absolute;
             bottom: 20px;
@@ -101,7 +100,6 @@
 <body>
 
     <div id="counter" style="display:none;">Count: 0</div>
-    
     <div id="save-status">Auto-saving data...</div>
 
     <div id="container">
@@ -148,7 +146,7 @@
         const BATCH_SIZE = 10; // Salva ogni 10 risposte
         
         let currentTrial = {};
-        let dataBuffer = []; // Buffer temporaneo per i dati non ancora inviati
+        let dataBuffer = []; 
         let totalCount = 0;
         let sessionID = Date.now().toString(36) + Math.random().toString(36).substr(2); 
 
@@ -166,22 +164,20 @@
         }
 
         function nextTrial() {
-            // 1. TINTA: 12 opzioni (Step di 30 gradi invece di 15)
-            // Math.random() * 12 genera un numero da 0 a 11.
-            // Moltiplicato per 30 otteniamo: 0, 30, 60, ... 330.
+            // 1. TINTA: 12 opzioni (Step di 30 gradi)
             let hue = (Math.floor(Math.random() * 12)) * 30;
             
             // 2. SATURAZIONE: Interi da 0 a 20.
             let sat = Math.floor(Math.random() * (SATURATION_LIMIT + 1));
             
-            // Aggiorniamo la variabile globale currentTrial
+            // Aggiorniamo la variabile globale
             currentTrial = { hue: hue, sat: sat };
 
-            // Reset visivo (Schermo nero per pulire la retina)
+            // Schermo nero
             document.getElementById('interface').style.opacity = '0';
             document.body.style.backgroundColor = 'black'; 
 
-            // Dopo 400ms mostriamo il colore
+            // Mostra colore dopo 400ms
             setTimeout(() => {
                 document.body.style.backgroundColor = `hsl(${hue}, ${sat}%, 50%)`;
                 document.getElementById('interface').style.opacity = '1';
@@ -192,14 +188,12 @@
             totalCount++;
             document.getElementById('counter').innerText = `Count: ${totalCount}`;
 
-            // Aggiungiamo al buffer
             dataBuffer.push({
                 hue: currentTrial.hue,
                 sat: currentTrial.sat,
                 response: responseType
             });
 
-            // Se abbiamo raggiunto 10 risposte, inviamo il pacchetto
             if (dataBuffer.length >= BATCH_SIZE) {
                 sendDataBatch();
             }
@@ -208,11 +202,10 @@
         }
 
         function sendDataBatch() {
-            // Copiamo i dati da inviare e svuotiamo il buffer principale
             const dataToSend = [...dataBuffer];
             dataBuffer = []; 
             
-            showSaveStatus(true); // Mostra "Saving..."
+            showSaveStatus(true); 
 
             if (!GOOGLE_SCRIPT_URL) {
                 console.log("Simulazione invio:", dataToSend);
@@ -233,7 +226,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             }).then(() => {
-                showSaveStatus(false); // Nascondi "Saving..."
+                showSaveStatus(false);
             }).catch(err => {
                 console.error("Errore salvataggio", err);
             });
