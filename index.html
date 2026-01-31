@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Grey Zone Experiment</title>
+    <title>Grey Zone Study</title>
     <style>
         body, html {
             margin: 0;
@@ -11,8 +11,8 @@
             height: 100%;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             overflow: hidden;
-            background-color: #000000; /* Start with Black */
-            color: #333; /* Default text color inside boxes */
+            background-color: #000000;
+            color: #333;
         }
 
         #container {
@@ -24,19 +24,19 @@
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
-            transition: opacity 0.2s;
         }
 
         .box {
             background-color: white;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(255,255,255,0.1); /* Lighter shadow for dark bg */
+            box-shadow: 0 10px 30px rgba(255,255,255,0.1);
             max-width: 500px;
             width: 100%;
+            transition: opacity 0.2s;
         }
 
-        h1 { font-size: 24px; color: #333; margin-bottom: 20px; }
+        h1 { font-size: 22px; color: #333; margin-bottom: 20px; }
         p { color: #555; line-height: 1.6; margin-bottom: 15px; }
 
         .btn-container {
@@ -48,8 +48,8 @@
 
         button {
             flex: 1;
-            padding: 20px;
-            font-size: 18px;
+            padding: 25px; /* Pulsanti più grandi */
+            font-size: 24px;
             border: none;
             border-radius: 12px;
             cursor: pointer;
@@ -60,14 +60,14 @@
         }
         button:active { transform: scale(0.96); }
 
-        .btn-primary { background-color: #333; color: white; padding: 15px; }
+        .btn-primary { background-color: #333; color: white; padding: 15px; font-size: 18px; }
         
-        #btn-grey { 
+        #btn-yes { 
             background-color: #e0e0e0; 
             color: #333; 
             border: 2px solid #ccc;
         } 
-        #btn-color { 
+        #btn-no { 
             background-color: #333; 
             color: white; 
             border: 2px solid #333;
@@ -75,14 +75,24 @@
 
         ul { text-align: left; margin-bottom: 20px; padding-left: 20px; }
         
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 2s linear infinite; margin: 10px auto; display: none; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Piccola notifica di salvataggio */
+        #save-status {
+            position: absolute;
+            bottom: 20px;
+            color: #666;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.5s;
+            background-color: rgba(255,255,255,0.9);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
 
         #counter {
             position: absolute;
             top: 20px;
             right: 20px;
-            color: rgba(255,255,255,0.5); /* Light text for black bg */
+            color: rgba(255,255,255,0.5);
             font-size: 14px;
             font-weight: bold;
         }
@@ -90,25 +100,28 @@
 </head>
 <body>
 
-    <div id="counter" style="display:none;">0 / 30</div>
+    <div id="counter" style="display:none;">Count: 0</div>
+    
+    <div id="save-status">Auto-saving data...</div>
 
     <div id="container">
         
         <div class="box" id="welcome">
-            <h1>The "Grey Zone" Experiment</h1>
-            <p>Does a color exist if you can't name it? Help us map the boundary between "Color" and "Grey".</p>
+            <h1>Color Perception Study</h1>
+            
+            <p>The goal of this survey is to determine at what saturation index a color becomes grey.</p>
             
             <div style="background-color: #fff3cd; padding: 15px; border-radius: 10px; border: 1px solid #ffeeba; margin: 20px 0; font-size: 0.95em; color: #333;">
                 <strong>⚠️ Requirements:</strong>
                 <ul style="margin-top:10px;">
                     <li>Screen Brightness: <strong>100%</strong></li>
                     <li>Disable "Night Mode" / Blue Light Filters.</li>
-                    <li>Clean Screen.</li>
                 </ul>
             </div>
             
             <p style="font-size: 0.9em; font-style: italic; color: #666;">
-                You will see a series of dark or pale colors. Simply classify them as GREY (neutral) or COLOR (if you see any hint of hue). <br>It takes about 60 seconds.
+                The test runs indefinitely. You can stop whenever you want by simply closing the page.<br>
+                (Data is saved automatically every 10 answers).
             </p>
 
             <button class="btn-primary" onclick="startTest()">Start Experiment</button>
@@ -118,21 +131,11 @@
             <h2 style="margin-bottom: 40px;">Is this Grey?</h2>
             
             <div class="btn-container">
-                <button id="btn-grey" onclick="registerResponse('GREY')">Yes, it's Grey</button>
-                <button id="btn-color" onclick="registerResponse('COLOR')">No, I see Color</button>
+                <button id="btn-yes" onclick="registerResponse('GREY')">YES</button>
+                <button id="btn-no" onclick="registerResponse('COLOR')">NO</button>
             </div>
-        </div>
-
-        <div class="box" id="results" style="display:none;">
-            <h2>Test Complete</h2>
-            <p>Saving your data...</p>
-            <div class="loader" id="loader"></div>
             
-            <p id="msg-final" style="display:none; color: green; font-weight: bold;">Done! Thank you.</p>
-            <p id="msg-error" style="display:none; color: red;">Error saving data.</p>
-            
-            <p style="font-size:0.9em; margin-top:20px;">You have contributed to a global map of color perception.</p>
-            <button onclick="location.reload()" style="margin-top: 20px; background-color: #666; color: white; padding:10px 20px;">Take it again</button>
+            <p style="margin-top: 30px; font-size: 12px; color: #999;">Close tab to finish.</p>
         </div>
     </div>
 
@@ -141,108 +144,86 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzrtT_KuQLzGBACPSmoPrVqDDekYtoEr6bWsnrRu6pOfP_bFFf6ukX1NAfqphaucm3Ag/exec"; 
 
         // CONFIGURAZIONE
-        const TOTAL_TRIALS = 30; 
-        const SATURATION_LIMIT = 50; // Range 0% - 50%
+        const SATURATION_LIMIT = 30; // Range 0% - 30%
+        const BATCH_SIZE = 10; // Salva ogni 10 risposte
         
-        let trialQueue = [];
-        let currentTrialIndex = 0;
-        let userResults = [];
+        let currentTrial = {};
+        let dataBuffer = []; // Buffer temporaneo per i dati non ancora inviati
+        let totalCount = 0;
         let sessionID = Date.now().toString(36) + Math.random().toString(36).substr(2); 
 
-        // Funzione per catturare il parametro "source" dall'URL (es. ?source=reddit)
         function getSourceParam() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('source') || 'direct'; // Se non c'è, usa 'direct'
+            return urlParams.get('source') || 'direct';
         }
         let userSource = getSourceParam();
 
-        function generateTrials() {
-            let trials = [];
-            // Le 24 tinte fisse (0, 15, 30 ... 345)
-            let possibleHues = [];
-            for (let i = 0; i < 24; i++) {
-                possibleHues.push(i * 15);
-            }
-
-            for (let i = 0; i < TOTAL_TRIALS; i++) {
-                // Scegliamo una delle 24 tinte a caso
-                let hue = possibleHues[Math.floor(Math.random() * possibleHues.length)];
-                
-                // Saturazione: Completamente random tra 0 e 50%
-                // Niente più "catch trials" ad alta saturazione
-                let sat = Math.floor(Math.random() * (SATURATION_LIMIT + 1));
-
-                trials.push({ hue: hue, sat: sat });
-            }
-            return trials;
-        }
-
         function startTest() {
-            trialQueue = generateTrials();
             document.getElementById('welcome').style.display = 'none';
             document.getElementById('interface').style.display = 'block';
             document.getElementById('counter').style.display = 'block';
-            
-            showNextColor();
+            nextTrial();
         }
 
-        function showNextColor() {
-            if (currentTrialIndex >= trialQueue.length) {
-                sendData();
-                return;
-            }
+        function nextTrial() {
+            // Generazione "Infinite Loop": Creiamo un nuovo colore al volo ogni volta
+            
+            // 1. Scegliamo tinta (step di 15 gradi per coerenza statistica)
+            let hue = (Math.floor(Math.random() * 24)) * 15;
+            
+            // 2. Scegliamo saturazione (0-50%)
+            let sat = Math.floor(Math.random() * (SATURATION_LIMIT + 1));
 
-            // Update Counter
-            document.getElementById('counter').innerText = `${currentTrialIndex + 1} / ${TOTAL_TRIALS}`;
+            currentTrial = { hue: hue, sat: sat };
 
             // INTER-STIMULUS INTERVAL (NERO)
             document.getElementById('interface').style.opacity = '0';
-            document.body.style.backgroundColor = 'black'; // PALATE CLEANSER NERO
+            document.body.style.backgroundColor = 'black'; 
 
-            // Dopo 400ms mostriamo il colore
             setTimeout(() => {
-                let t = trialQueue[currentTrialIndex];
-                
-                document.body.style.backgroundColor = `hsl(${t.hue}, ${t.sat}%, 50%)`;
-                
+                document.body.style.backgroundColor = `hsl(${hue}, ${sat}%, 50%)`;
                 document.getElementById('interface').style.opacity = '1';
-                
             }, 400); 
         }
 
         function registerResponse(responseType) {
-            let currentTrial = trialQueue[currentTrialIndex];
-            
-            userResults.push({
+            totalCount++;
+            document.getElementById('counter').innerText = `Count: ${totalCount}`;
+
+            // Aggiungiamo al buffer
+            dataBuffer.push({
                 hue: currentTrial.hue,
                 sat: currentTrial.sat,
                 response: responseType
             });
 
-            currentTrialIndex++;
-            showNextColor();
+            // Se abbiamo raggiunto 10 risposte, inviamo il pacchetto
+            if (dataBuffer.length >= BATCH_SIZE) {
+                sendDataBatch();
+            }
+
+            nextTrial();
         }
 
-        function sendData() {
-            document.getElementById('interface').style.display = 'none';
-            document.getElementById('counter').style.display = 'none';
-            document.body.style.backgroundColor = "#f0f0f0"; 
-            document.getElementById('results').style.display = 'block';
-            document.getElementById('loader').style.display = 'block';
+        function sendDataBatch() {
+            // Copiamo i dati da inviare e svuotiamo il buffer principale
+            // Questo evita conflitti se l'utente clicca mentre inviamo
+            const dataToSend = [...dataBuffer];
+            dataBuffer = []; 
+            
+            showSaveStatus(true); // Mostra "Saving..."
 
             if (!GOOGLE_SCRIPT_URL) {
-                document.getElementById('msg-final').innerText = "Test Mode (No Save).";
-                document.getElementById('msg-final').style.display = 'block';
-                document.getElementById('loader').style.display = 'none';
-                console.log(userResults);
+                console.log("Simulazione invio:", dataToSend);
+                setTimeout(() => showSaveStatus(false), 1000);
                 return;
             }
 
             const payload = {
                 session: sessionID,
                 timestamp: new Date().toISOString(),
-                source: userSource, // Inviamo la fonte al database
-                data: userResults
+                source: userSource,
+                data: dataToSend
             };
 
             fetch(GOOGLE_SCRIPT_URL, {
@@ -251,12 +232,15 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             }).then(() => {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('msg-final').style.display = 'block';
-            }).catch(() => {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('msg-error').style.display = 'block';
+                showSaveStatus(false); // Nascondi "Saving..."
+            }).catch(err => {
+                console.error("Errore salvataggio", err);
             });
+        }
+
+        function showSaveStatus(show) {
+            const el = document.getElementById('save-status');
+            el.style.opacity = show ? '1' : '0';
         }
     </script>
 </body>
