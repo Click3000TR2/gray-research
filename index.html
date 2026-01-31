@@ -144,7 +144,7 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc1kIbeH_Yoqur3olqxohcgYH2w4PKTCW8CcwMolUwPNCGzFImJZfC4wtTPI__g8W9jA/exec"; 
 
         // CONFIGURAZIONE
-        const SATURATION_LIMIT = 20; // Range 0% - 20%
+        const SATURATION_LIMIT = 20; // Range ridotto 0% - 20%
         const BATCH_SIZE = 10; // Salva ogni 10 risposte
         
         let currentTrial = {};
@@ -166,29 +166,26 @@
         }
 
         function nextTrial() {
-            // NUOVA CONFIGURAZIONE OTTIMIZZATA
-            const SATURATION_LIMIT = 20; // Range ridotto 0% - 20%
+            // 1. TINTA: 12 opzioni (Step di 30 gradi invece di 15)
+            // Math.random() * 12 genera un numero da 0 a 11.
+            // Moltiplicato per 30 otteniamo: 0, 30, 60, ... 330.
+            let hue = (Math.floor(Math.random() * 12)) * 30;
             
-            function nextTrial() {
-                // 1. TINTA: 12 opzioni (Step di 30 gradi invece di 15)
-                // Math.random() * 12 genera un numero da 0 a 11.
-                // Moltiplicato per 30 otteniamo: 0, 30, 60, ... 330.
-                let hue = (Math.floor(Math.random() * 12)) * 30;
-                
-                // 2. SATURAZIONE: Interi da 0 a 20.
-                // Usiamo Math.floor per avere numeri interi puliti (Niente 0.5%)
-                let sat = Math.floor(Math.random() * (SATURATION_LIMIT + 1));
-                
-                window.currentTrial = { hue: hue, sat: sat };
-    
-                document.getElementById('interface').style.opacity = '0';
-                document.body.style.backgroundColor = 'black'; 
-    
-                setTimeout(() => {
-                    document.body.style.backgroundColor = `hsl(${hue}, ${sat}%, 50%)`;
-                    document.getElementById('interface').style.opacity = '1';
-                }, 400); 
-            }
+            // 2. SATURAZIONE: Interi da 0 a 20.
+            let sat = Math.floor(Math.random() * (SATURATION_LIMIT + 1));
+            
+            // Aggiorniamo la variabile globale currentTrial
+            currentTrial = { hue: hue, sat: sat };
+
+            // Reset visivo (Schermo nero per pulire la retina)
+            document.getElementById('interface').style.opacity = '0';
+            document.body.style.backgroundColor = 'black'; 
+
+            // Dopo 400ms mostriamo il colore
+            setTimeout(() => {
+                document.body.style.backgroundColor = `hsl(${hue}, ${sat}%, 50%)`;
+                document.getElementById('interface').style.opacity = '1';
+            }, 400); 
         }
 
         function registerResponse(responseType) {
@@ -212,7 +209,6 @@
 
         function sendDataBatch() {
             // Copiamo i dati da inviare e svuotiamo il buffer principale
-            // Questo evita conflitti se l'utente clicca mentre inviamo
             const dataToSend = [...dataBuffer];
             dataBuffer = []; 
             
@@ -250,8 +246,6 @@
     </script>
 </body>
 </html>
-
-
 
 
 
