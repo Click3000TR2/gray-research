@@ -166,24 +166,29 @@
         }
 
         function nextTrial() {
-            // Generazione "Infinite Loop": Creiamo un nuovo colore al volo ogni volta
+            // NUOVA CONFIGURAZIONE OTTIMIZZATA
+            const SATURATION_LIMIT = 20; // Range ridotto 0% - 20%
             
-            // 1. Scegliamo tinta (step di 15 gradi per coerenza statistica)
-            let hue = (Math.floor(Math.random() * 24)) * 15;
-            
-            // 2. Scegliamo saturazione (0-50%)
-            let sat = Math.floor(Math.random() * (SATURATION_LIMIT + 1));
-
-            currentTrial = { hue: hue, sat: sat };
-
-            // INTER-STIMULUS INTERVAL (NERO)
-            document.getElementById('interface').style.opacity = '0';
-            document.body.style.backgroundColor = 'black'; 
-
-            setTimeout(() => {
-                document.body.style.backgroundColor = `hsl(${hue}, ${sat}%, 50%)`;
-                document.getElementById('interface').style.opacity = '1';
-            }, 400); 
+            function nextTrial() {
+                // 1. TINTA: 12 opzioni (Step di 30 gradi invece di 15)
+                // Math.random() * 12 genera un numero da 0 a 11.
+                // Moltiplicato per 30 otteniamo: 0, 30, 60, ... 330.
+                let hue = (Math.floor(Math.random() * 12)) * 30;
+                
+                // 2. SATURAZIONE: Interi da 0 a 20.
+                // Usiamo Math.floor per avere numeri interi puliti (Niente 0.5%)
+                let sat = Math.floor(Math.random() * (SATURATION_LIMIT + 1));
+                
+                window.currentTrial = { hue: hue, sat: sat };
+    
+                document.getElementById('interface').style.opacity = '0';
+                document.body.style.backgroundColor = 'black'; 
+    
+                setTimeout(() => {
+                    document.body.style.backgroundColor = `hsl(${hue}, ${sat}%, 50%)`;
+                    document.getElementById('interface').style.opacity = '1';
+                }, 400); 
+            }
         }
 
         function registerResponse(responseType) {
@@ -245,6 +250,7 @@
     </script>
 </body>
 </html>
+
 
 
 
